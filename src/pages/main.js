@@ -20,6 +20,8 @@ export default class Main extends Component
         pais: "BR",
         tempo: "",
         temperatura: 0,
+        temperaturaMax: 0,
+        temperaturaMin: 0,
         cidadeEncontrada: "Blumenau",
         icone: Icons(),
         dias: []
@@ -43,6 +45,8 @@ export default class Main extends Component
                 pais: responseCurrentWeather.data.sys.country,
                 tempo: responseCurrentWeather.data.weather[ 0 ].description,
                 temperatura: responseCurrentWeather.data.main.temp,
+                temperaturaMax: responseCurrentWeather.data.main.temp_max,
+                temperaturaMin: responseCurrentWeather.data.main.temp_min,
                 icone: Icons( responseCurrentWeather.data.weather[ 0 ].icon )
             } );
 
@@ -74,7 +78,7 @@ export default class Main extends Component
 
     space ()
     {
-        return ( <View style={{ height: 50, width: 1, backgroundColor: 'gray', margin: 5 }} /> )
+        return ( <View style={{ height: 50, width: 1, backgroundColor: 'white', margin: 5 }} /> )
     }
 
     actionOnRow ( item )
@@ -90,41 +94,47 @@ export default class Main extends Component
     {
         return (
             <View style={styles.container}>
-                <Text style={{ textAlign: 'center', fontSize: 40, fontStyle: "italic" }}>{this.state.cidade}</Text>
+                <Text style={styles.cidade}>{this.state.cidade}</Text>
                 <Text style={styles.icon}>
                     {this.state.icone}
                 </Text>
-                <View >
-                    <Text style={{ textAlign: 'center', fontSize: 60, fontStyle: "italic" }}>{Math.round( this.state.temperatura ) + "°C" || ""}</Text>
-                    <Text style={{ textAlign: 'center', fontSize: 20, fontStyle: "italic" }}>{this.state.tempo || ""}</Text>
-                    <View>
-                        <TextInput style={{ height: 40, borderColor: 'black', borderWidth: 1, borderRadius: 5, margin: 5 }}
-                            placeholder="Digite a cidade"
-                            placeholderTextColor="gray"
-                            onChangeText={( text ) => this.setState( { cidadeEncontrada: text } )}
-                            clearButtonMode={"always"}
-                            clearTextOnFocus={true}
-                            enablesReturnKeyAutomatically={true}
-                            returnKeyType={"search"}
-                            onSubmitEditing={this.getWeather} />
 
-                        {/* <Button title="Atualizar" onPress={() => this.props.navigation.navigate( "Detail" )} style={{ borderRadius: 10, margin: 5, }}></Button> */}
-
-                    </View>
-                    <View>
-                        <FlatList
-                            data={this.state.dias}
-                            keyExtractor={( item, index ) => 'key' + index}
-                            ItemSeparatorComponent={this.space}
-                            horizontal={true}
-                            renderItem={( { item } ) =>
-                                <TouchableWithoutFeedback onPress={() => this.actionOnRow( item )}>
-                                    <Text style={{ fontSize: 20, textAlign: 'center', }}>{item.weather[ 0 ].description}</Text>
-                                </TouchableWithoutFeedback>
-                            }
-                        />
+                <View style={styles.viewTemperaturasAtuais}>
+                    <Text style={styles.temperaturaAtual}>{Math.round( this.state.temperatura ) + "°" || ""}</Text>
+                    <View style={styles.viewTemperaturaMinMax}>
+                        <Text style={styles.temperaturaMaximaAtual}>{"↑ " + Math.round( this.state.temperaturaMax ) + "°" || ""}</Text>
+                        <Text style={styles.temperaturaMinimaAtual}>{"↓ " + Math.round( this.state.temperaturaMin ) + "°" || ""}</Text>
                     </View>
                 </View>
+                <Text style={styles.tempoAtual}>{this.state.tempo || ""}</Text>
+                <View>
+                    <TextInput style={styles.inputCidade}
+                        placeholder="Digite a cidade"
+                        placeholderTextColor="white"
+                        onChangeText={( text ) => this.setState( { cidadeEncontrada: text } )}
+                        clearButtonMode={"always"}
+                        clearTextOnFocus={true}
+                        enablesReturnKeyAutomatically={true}
+                        returnKeyType={"search"}
+                        onSubmitEditing={this.getWeather} />
+
+                    {/* <Button title="Atualizar" onPress={() => this.props.navigation.navigate( "Detail" )} style={{ borderRadius: 10, margin: 5, }}></Button> */}
+
+                </View>
+                <View>
+                    <FlatList
+                        data={this.state.dias}
+                        keyExtractor={( item, index ) => 'key' + index}
+                        ItemSeparatorComponent={this.space}
+                        horizontal={true}
+                        renderItem={( { item } ) =>
+                            <TouchableWithoutFeedback onPress={() => this.actionOnRow( item )}>
+                                <Text style={{ color: 'white', fontSize: 20, textAlign: 'center', }}>{item.weather[ 0 ].description}</Text>
+                            </TouchableWithoutFeedback>
+                        }
+                    />
+                </View>
+
             </View >
         );
     }
@@ -136,14 +146,68 @@ export default class Main extends Component
 const styles = StyleSheet.create( {
     container: {
         flex: 1,
-        justifyContent: 'center',
+        flexDirection: "column",
+        justifyContent: 'flex-start',
         alignItems: 'stretch',
-        margin: 5
+        margin: 0,
+        backgroundColor: '#82B4FF'
     },
     icon: {
         textAlign: 'center',
         fontFamily: 'WeatherIcons-Regular',
         fontSize: 130,
-        padding: 0
+        padding: 0,
+        color: 'white'
+    },
+    cidade: {
+        textAlign: 'center',
+        fontSize: 40,
+        fontStyle: "italic",
+        color: 'white'
+    },
+    viewTemperaturasAtuais: {
+        flex: 1,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center"
+    },
+    temperaturaAtual: {
+        textAlign: 'center',
+        fontSize: 60,
+        fontWeight: "bold",
+        color: 'white'
+    },
+    viewTemperaturaMinMax: {
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        margin: 5
+    },
+    temperaturaMaximaAtual: {
+        textAlign: 'center',
+        fontSize: 20,
+        fontWeight: "bold",
+        color: '#FF5969'
+    },
+    temperaturaMinimaAtual: {
+        textAlign: 'center',
+        fontSize: 20,
+        fontWeight: "bold",
+        color: '#3D6AFF'
+    },
+    tempoAtual: {
+        textAlign: 'center',
+        fontSize: 20,
+        fontWeight: "bold",
+        fontStyle: "italic",
+        color: 'white'
+    },
+    inputCidade: {
+        height: 40,
+        borderColor: 'white',
+        borderWidth: 1,
+        borderRadius: 5,
+        margin: 5
     }
+
 } );
