@@ -15,7 +15,7 @@ export default class Main extends Component
 
 
 
-    state = {
+    state = { 
         weather: [],
         cidade: "",
         pais: "BR",
