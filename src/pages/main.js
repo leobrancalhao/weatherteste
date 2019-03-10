@@ -2,7 +2,12 @@ import React, { Component } from 'react';
 
 import { StyleSheet, View, Text, Button, TextInput, FlatList, TouchableWithoutFeedback } from 'react-native';
 import api from "../services/api";
-import Icons from "../images/icons"
+import DayWeek from "../utils/dayWeek"
+import Hour from "../utils/hourDay"
+import ColorOpacity from "../utils/colorOpacity"
+import IconsWeather from "../images/iconsWeather"
+import { KeyboardAvoidingView } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 
 APPID = "f9c80b362120b7c69c39804136bedaa4";
 cidadeSelecionada = "Blumenau"
@@ -23,7 +28,7 @@ export default class Main extends Component
         temperaturaMax: 0,
         temperaturaMin: 0,
         cidadeEncontrada: "Blumenau",
-        icone: Icons(),
+        icone: "",
         dias: []
     };
     componentDidMount ()
@@ -47,7 +52,7 @@ export default class Main extends Component
                 temperatura: responseCurrentWeather.data.main.temp,
                 temperaturaMax: responseCurrentWeather.data.main.temp_max,
                 temperaturaMin: responseCurrentWeather.data.main.temp_min,
-                icone: Icons( responseCurrentWeather.data.weather[ 0 ].icon )
+                icone: responseCurrentWeather.data.weather[ 0 ].icon
             } );
 
             await this.getForecast();
@@ -75,12 +80,6 @@ export default class Main extends Component
             console.error( "Erro ao receber os dados atuais" + error );
         }
     };
-
-    space ()
-    {
-        return ( <View style={{ height: 50, width: 1, backgroundColor: 'white', margin: 5 }} /> )
-    }
-
     actionOnRow ( item )
     {
 
@@ -93,49 +92,67 @@ export default class Main extends Component
     render ()
     {
         return (
-            <View style={styles.container}>
-                <Text style={styles.cidade}>{this.state.cidade}</Text>
-                <Text style={styles.icon}>
+            <KeyboardAvoidingView style={{ flex: 1 }}>
+                <ScrollView contentContainerStyle={{ flex: 1 }} style={{ flex: 1 }}>
+                    <View style={styles.container}>
+
+                        <View>
+                            <TextInput style={styles.inputCidade}
+                                placeholder="Digite a cidade"
+                                placeholderTextColor="gray"
+                                onChangeText={( text ) => this.setState( { cidadeEncontrada: text } )}
+                                clearButtonMode={"always"}
+                                clearTextOnFocus={true}
+                                enablesReturnKeyAutomatically={true}
+                                returnKeyType={"search"}
+                                onSubmitEditing={this.getWeather} />
+
+                            {/* <Button title="Atualizar" onPress={() => this.props.navigation.navigate( "Detail" )} style={{ borderRadius: 10, margin: 5, }}></Button> */}
+
+                        </View>
+                        <Text style={styles.cidade}>{this.state.cidade}</Text>
+                        {/* <Text style={styles.icon}>
                     {this.state.icone}
-                </Text>
+                </Text> */}
+                        <View style={styles.icon}>
+                            <IconsWeather name={this.state.icone} size={130} color={'white'} />
+                            <Text style={styles.tempoAtual}>{this.state.tempo || ""}</Text>
+                        </View>
 
-                <View style={styles.viewTemperaturasAtuais}>
-                    <Text style={styles.temperaturaAtual}>{Math.round( this.state.temperatura ) + "°" || ""}</Text>
-                    <View style={styles.viewTemperaturaMinMax}>
-                        <Text style={styles.temperaturaMaximaAtual}>{"↑ " + Math.round( this.state.temperaturaMax ) + "°" || ""}</Text>
-                        <Text style={styles.temperaturaMinimaAtual}>{"↓ " + Math.round( this.state.temperaturaMin ) + "°" || ""}</Text>
-                    </View>
-                </View>
-                <Text style={styles.tempoAtual}>{this.state.tempo || ""}</Text>
-                <View>
-                    <TextInput style={styles.inputCidade}
-                        placeholder="Digite a cidade"
-                        placeholderTextColor="white"
-                        onChangeText={( text ) => this.setState( { cidadeEncontrada: text } )}
-                        clearButtonMode={"always"}
-                        clearTextOnFocus={true}
-                        enablesReturnKeyAutomatically={true}
-                        returnKeyType={"search"}
-                        onSubmitEditing={this.getWeather} />
+                        <View style={styles.viewTemperaturasAtuais}>
+                            <Text style={styles.temperaturaAtual}>{Math.round( this.state.temperatura ) + "°" || ""}</Text>
+                            <View style={styles.viewTemperaturaMinMax}>
+                                <Text style={styles.temperaturaMaximaAtual}>{"↑ " + Math.round( this.state.temperaturaMax ) + "°" || ""}</Text>
+                                <Text style={styles.temperaturaMinimaAtual}>{"↓ " + Math.round( this.state.temperaturaMin ) + "°" || ""}</Text>
+                            </View>
+                        </View>
 
-                    {/* <Button title="Atualizar" onPress={() => this.props.navigation.navigate( "Detail" )} style={{ borderRadius: 10, margin: 5, }}></Button> */}
 
-                </View>
-                <View>
-                    <FlatList
-                        data={this.state.dias}
-                        keyExtractor={( item, index ) => 'key' + index}
-                        ItemSeparatorComponent={this.space}
-                        horizontal={true}
-                        renderItem={( { item } ) =>
-                            <TouchableWithoutFeedback onPress={() => this.actionOnRow( item )}>
-                                <Text style={{ color: 'white', fontSize: 20, textAlign: 'center', }}>{item.weather[ 0 ].description}</Text>
-                            </TouchableWithoutFeedback>
-                        }
-                    />
-                </View>
+                        <View style={styles.viewList}>
+                            <FlatList
+                                data={this.state.dias}
+                                keyExtractor={( item, index ) => 'key' + index}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                renderItem={( { item } ) =>
+                                    <TouchableWithoutFeedback onPress={() => this.actionOnRow( item )}>
+                                        <View style={styles.list}>
+                                            <Text style={styles.nomeDia}>{DayWeek( item.dt )}</Text>
+                                            <Text style={{ color: 'white', fontSize: 15, textAlign: 'center', }}>{Hour( item.dt_txt )}</Text>
+                                            <IconsWeather name={item.weather[ 0 ].icon} size={30} color={'white'} />
+                                            <Text style={styles.temperaturaMaximaDias}>{"↑ " + Math.round( item.main.temp_max ) + "°" || ""}</Text>
+                                            <Text style={styles.temperaturaMinimaDias}>{"↓ " + Math.round( item.main.temp_min ) + "°" || ""}</Text>
 
-            </View >
+
+                                        </View>
+                                    </TouchableWithoutFeedback>
+                                }
+                            />
+                        </View>
+
+                    </View >
+                </ScrollView>
+            </KeyboardAvoidingView>
         );
     }
 
@@ -150,14 +167,21 @@ const styles = StyleSheet.create( {
         justifyContent: 'flex-start',
         alignItems: 'stretch',
         margin: 0,
+        padding: 5,
         backgroundColor: '#82B4FF'
     },
     icon: {
-        textAlign: 'center',
-        fontFamily: 'WeatherIcons-Regular',
-        fontSize: 130,
-        padding: 0,
-        color: 'white'
+        alignItems: "center"
+    },
+    viewList: {
+        margin: 10
+    },
+    list: {
+        alignItems: "center",
+        borderRadius: 10,
+        padding: 20,
+        margin: 5,
+        backgroundColor: ColorOpacity( "#0061FF", 10 )
     },
     cidade: {
         textAlign: 'center',
@@ -166,10 +190,19 @@ const styles = StyleSheet.create( {
         color: 'white'
     },
     viewTemperaturasAtuais: {
-        flex: 1,
         flexDirection: "row",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+        margin: 5,
+        height: 60,
+        maxHeight: 80
+    },
+    tempoAtual: {
+        textAlign: 'center',
+        fontSize: 20,
+        fontWeight: "bold",
+        fontStyle: "italic",
+        color: 'white'
     },
     temperaturaAtual: {
         textAlign: 'center',
@@ -178,7 +211,6 @@ const styles = StyleSheet.create( {
         color: 'white'
     },
     viewTemperaturaMinMax: {
-        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
         margin: 5
@@ -195,18 +227,30 @@ const styles = StyleSheet.create( {
         fontWeight: "bold",
         color: '#3D6AFF'
     },
-    tempoAtual: {
+    temperaturaMaximaDias: {
         textAlign: 'center',
-        fontSize: 20,
+        fontSize: 15,
         fontWeight: "bold",
-        fontStyle: "italic",
-        color: 'white'
+        color: '#FF5969'
+    },
+    temperaturaMinimaDias: {
+        textAlign: 'center',
+        fontSize: 15,
+        fontWeight: "bold",
+        color: '#3D6AFF'
+    },
+    nomeDia: {
+        color: 'white',
+        fontSize: 20,
+        textAlign: 'center',
+        fontWeight: "bold"
     },
     inputCidade: {
         height: 40,
-        borderColor: 'white',
+        borderColor: '#6870DD',
         borderWidth: 1,
         borderRadius: 5,
+        backgroundColor: "white",
         margin: 5
     }
 
