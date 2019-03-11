@@ -1,4 +1,4 @@
-export default function convertHex ( hex, opacity )
+export default function ( hex, opacity )
 {
     hex = hex.replace( '#', '' );
     r = parseInt( hex.substring( 0, 2 ), 16 );

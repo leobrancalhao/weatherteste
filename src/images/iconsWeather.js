@@ -1,6 +1,5 @@
 import React from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-//FontAwesome5
 
 const ICONS = {
     '01d': 'sun',
