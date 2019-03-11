@@ -1,7 +1,7 @@
 # WeatherTest
 Aplicação para mostrar a previsão do dia atual e semanal da cidade que for selecionada.
 
-## Dependencias
+## Dependências
 As dependencias utilizadas nesse projeto foram:
  "axios": "^0.18.0",
  "react": "16.6.3",
