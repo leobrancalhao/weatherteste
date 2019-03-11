@@ -1,7 +1,7 @@
-Weather Now
+# WeatherTest
 Aplicação para mostrar a previsão do dia atual e semanal da cidade que for selecionada.
 
-Scripts
+## Dependencias
 As dependencias utilizadas nesse projeto foram:
  "axios": "^0.18.0",
  "react": "16.6.3",
@@ -10,15 +10,16 @@ As dependencias utilizadas nesse projeto foram:
  "react-native-vector-icons": "^6.3.0",
  "react-navigation": "^3.3.2"
 
+## Scripts
 Para instalara as dependencias do projeto execute na linha de comando, na pasta do projeto
 
-yarn install
+- `yarn install`
 
-Para realizar o build da aplicação
+> Para realizar o build da aplicação
 
-react-native run-android
+- `react-native run-android`
 
 A aplicação irá iniciar em localhost:8081
 
-APIs utilizadas
+## APIs utilizadas
 https://www.openweathermap.org
